@@ -58,19 +58,15 @@ def evaluate_model(classifier, X, y):
 
 # 加载处理后的特征数据和标签
 data = pd.read_csv("data.csv")
-# Class是目标列
-y = data['Class']
-X = data.drop('Class', axis=1)
+y = data['is_default']
+X = data.drop(['is_default','loan_id','user_id'], axis=1)
 
-# # 实例化lightgbm分类器
-# lgb_classifier = lgb.LGBMClassifier(
-#     n_estimators=50,
-#     max_depth=12,
-#     random_state=42
-# )
-#
-# # 使用函数评估模型
-# evaluate_model(lgb_classifier, X, y)
+# 实例化lightgbm分类器
+lgb_classifier = lgb.LGBMClassifier(
+    n_estimators=50,
+    max_depth=12,
+    random_state=42
+)
 
 
 # 实例化随机森林分类器
@@ -80,14 +76,14 @@ rf_classifier = RandomForestClassifier(
     random_state=42
 )
 
-# # 实例化决策树分类器
-# dt_classifier = DecisionTreeClassifier(
-#     max_depth=12,
-#     random_state=42
-# )
+# 实例化决策树分类器
+dt_classifier = DecisionTreeClassifier(
+    max_depth=12,
+    random_state=42
+)
 
-# # 实例化逻辑回归分类器
-# logistic_regression = LogisticRegression(random_state=42)
+# 实例化逻辑回归分类器
+logistic_regression = LogisticRegression()
 
 # 使用函数评估模型
-evaluate_model(rf_classifier, X, y)
+evaluate_model(dt_classifier, X, y)

@@ -21,7 +21,7 @@ def calculate_ks(y_true, y_prob):
 
 
 def evaluate_model(classifier, X, y):
-    kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    kf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
     # 初始化存储分数的列表
     metrics_summary = {

@@ -1,17 +1,12 @@
 import pandas as pd
 import lightgbm as lgb
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
 import warnings
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.tree import DecisionTreeClassifier
-
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, precision_score, f1_score, roc_curve
-
-# print("lightgbm version:", lgb.__version__)
+from TriEnhance import TriEnhanceClassifier
 
 
 def calculate_ks(y_true, y_prob):
@@ -34,9 +29,10 @@ def evaluate_model(classifier, X, y):
         X_train, X_val = X.iloc[train_index], X.iloc[val_index]
         y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 
-        classifier.fit(X_train, y_train)
+        # 使用模型增强器
+        classifier.fit(X_train, y_train, X_val)
 
-        # 对训练集和验证集的预测标签
+        # 对验证集的预测标签
         y_val_pred = classifier.predict(X_val)
         y_val_pred_proba = classifier.predict_proba(X_val)
 
@@ -58,36 +54,22 @@ def evaluate_model(classifier, X, y):
 
 # 加载处理后的特征数据和标签
 data = pd.read_csv("data.csv")
-# Class是目标列
-y = data['Class']
-X = data.drop('Class', axis=1)
+y = data['isDefault']
+X = data.drop(['isDefault','loan_id','user_id'], axis=1)
 
-# # 实例化lightgbm分类器
-# lgb_classifier = lgb.LGBMClassifier(
-#     n_estimators=50,
-#     max_depth=12,
-#     random_state=42
-# )
-#
-# # 使用函数评估模型
-# evaluate_model(lgb_classifier, X, y)
+# 指定数据集的离散变量
+discrete_columns = []
 
-
-# 实例化随机森林分类器
-rf_classifier = RandomForestClassifier(
+# 实例化lightgbm分类器
+lgb_classifier = lgb.LGBMClassifier(
     n_estimators=50,
     max_depth=12,
+    verbosity=-1,
     random_state=42
 )
 
-# # 实例化决策树分类器
-# dt_classifier = DecisionTreeClassifier(
-#     max_depth=12,
-#     random_state=42
-# )
+# 实例化模型增强器
+APLIDC_clf = TriEnhanceClassifier(base_classifier=lgb_classifier, discrete_columns=discrete_columns)
 
-# # 实例化逻辑回归分类器
-# logistic_regression = LogisticRegression(random_state=42)
-
-# 使用函数评估模型
-evaluate_model(rf_classifier, X, y)
+# 使用函数评估增强后的模型
+evaluate_model(APLIDC_clf, X, y)

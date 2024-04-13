@@ -17,7 +17,7 @@ def calculate_ks(y_true, y_prob):
 
 
 def evaluate_model(classifier, X, y):
-    kf = StratifiedKFold(n_splits=2, shuffle=True, random_state=42)
+    kf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
     metrics_summary = {
         'val_auc': [], 'val_accuracy': [],
