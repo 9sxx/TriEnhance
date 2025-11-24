@@ -68,10 +68,6 @@ class TriEnhanceClassifier(BaseEstimator, ClassifierMixin):
         self.method = best_method
         X_train_split_balanced, y_train_split_balanced = self._balance_data(X_train_split, y_train_split)
 
-        print("错误分类的样本数量：", len(misclassified_samples_best))
-        print("错误分类的样本占验证集的比例：", len(misclassified_samples_best)/len(X_test_split))
-        print("错误分类的样本的标签统计：", misclassified_labels_best.value_counts())
-
         X_combined = pd.concat([X_train_split_balanced, correctly_classified_samples_best])
         y_combined = pd.concat([y_train_split_balanced, correctly_classified_labels_best])
 
@@ -92,7 +88,6 @@ class TriEnhanceClassifier(BaseEstimator, ClassifierMixin):
         for mode in modes:
             self.mode = mode
             X_train_split_updated, y_train_split_updated, _, _ = self._enhance_training_set(X_train_filtered_split, y_train_filtered_split, X_unlabeled, X_test_filtered_split, y_test_filtered_split)
-            print(f"{self.mode}:学习完成！")
 
             self.base_classifier = copy.deepcopy(self.base_classifier_template)
             self.base_classifier.fit(X_train_split_updated, y_train_split_updated)
