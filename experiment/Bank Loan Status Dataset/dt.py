@@ -48,22 +48,17 @@ def evaluate_model(classifier, X, y):
         print(f'Mean {metric}: {mean_value:.4f}, Std {metric}: {std_value:.4f}')
 
 
-# 加载处理后的特征数据和标签
 data = pd.read_csv("data.csv")
 y = data['Loan Status']
 X = data.drop(['Loan ID', 'Customer ID', 'Loan Status'], axis=1)
 
-# 指定离散变量
 discrete_columns = []
 
-# 实例化决策树分类器
 dt_classifier = DecisionTreeClassifier(
     max_depth=12,
     random_state=42
 )
 
-# 实例化模型增强器
 APLIDC_clf = TriEnhanceClassifier(base_classifier=dt_classifier, discrete_columns=discrete_columns)
 
-# 评估增强后的模型
 evaluate_model(APLIDC_clf, X, y)

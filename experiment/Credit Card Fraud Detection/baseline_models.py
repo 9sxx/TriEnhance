@@ -23,7 +23,6 @@ def calculate_ks(y_true, y_prob):
 def evaluate_model(classifier, X, y):
     kf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
-    # 初始化存储分数的列表
     metrics_summary = {
         'val_auc': [], 'val_accuracy': [],
         'val_recall': [], 'val_precision': [],
@@ -36,11 +35,9 @@ def evaluate_model(classifier, X, y):
 
         classifier.fit(X_train, y_train)
 
-        # 对训练集和验证集的预测标签
         y_val_pred = classifier.predict(X_val)
         y_val_pred_proba = classifier.predict_proba(X_val)
 
-        # 计算各项指标
         metrics_summary['val_auc'].append(roc_auc_score(y_val, y_val_pred_proba[:, 1]))
         metrics_summary['val_accuracy'].append(accuracy_score(y_val, y_val_pred))
         metrics_summary['val_recall'].append(recall_score(y_val, y_val_pred))
@@ -48,46 +45,37 @@ def evaluate_model(classifier, X, y):
         metrics_summary['val_f1'].append(f1_score(y_val, y_val_pred))
         metrics_summary['val_ks'].append(calculate_ks(y_val, y_val_pred_proba))
 
-    # 打印平均指标
     print('#' * 20)
     for metric in metrics_summary:
         mean_value = np.mean(metrics_summary[metric])
-        std_value = np.std(metrics_summary[metric], ddof=1)  # 用于样本标准差的计算
+        std_value = np.std(metrics_summary[metric], ddof=1) 
         print(f'Mean {metric}: {mean_value:.4f}, Std {metric}: {std_value:.4f}')
 
 
-# 加载处理后的特征数据和标签
 data = pd.read_csv("data.csv")
-# Class是目标列
 y = data['Class']
 X = data.drop('Class', axis=1)
 
-# # 实例化lightgbm分类器
 # lgb_classifier = lgb.LGBMClassifier(
 #     n_estimators=50,
 #     max_depth=12,
 #     random_state=42
 # )
 #
-# # 使用函数评估模型
 # evaluate_model(lgb_classifier, X, y)
 
 
-# 实例化随机森林分类器
 rf_classifier = RandomForestClassifier(
     n_estimators=50,
     max_depth=12,
     random_state=42
 )
 
-# # 实例化决策树分类器
 # dt_classifier = DecisionTreeClassifier(
 #     max_depth=12,
 #     random_state=42
 # )
 
-# # 实例化逻辑回归分类器
 # logistic_regression = LogisticRegression(random_state=42)
 
-# 使用函数评估模型
 evaluate_model(rf_classifier, X, y)

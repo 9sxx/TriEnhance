@@ -18,7 +18,6 @@ def calculate_ks(y_true, y_prob):
 def evaluate_model(classifier, X, y):
     kf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
-    # 初始化存储分数的列表
     metrics_summary = {
         'val_auc': [], 'val_accuracy': [],
         'val_recall': [], 'val_precision': [],
@@ -29,14 +28,11 @@ def evaluate_model(classifier, X, y):
         X_train, X_val = X.iloc[train_index], X.iloc[val_index]
         y_train, y_val = y.iloc[train_index], y.iloc[val_index]
 
-        # 使用模型增强器
         classifier.fit(X_train, y_train, X_val)
 
-        # 对验证集的预测标签
         y_val_pred = classifier.predict(X_val)
         y_val_pred_proba = classifier.predict_proba(X_val)
 
-        # 计算各项指标
         metrics_summary['val_auc'].append(roc_auc_score(y_val, y_val_pred_proba[:, 1]))
         metrics_summary['val_accuracy'].append(accuracy_score(y_val, y_val_pred))
         metrics_summary['val_recall'].append(recall_score(y_val, y_val_pred))
@@ -44,23 +40,18 @@ def evaluate_model(classifier, X, y):
         metrics_summary['val_f1'].append(f1_score(y_val, y_val_pred))
         metrics_summary['val_ks'].append(calculate_ks(y_val, y_val_pred_proba))
 
-    # 打印平均指标
     print('#' * 20)
     for metric in metrics_summary:
         mean_value = np.mean(metrics_summary[metric])
-        std_value = np.std(metrics_summary[metric], ddof=1)  # 用于样本标准差的计算
+        std_value = np.std(metrics_summary[metric], ddof=1) 
         print(f'Mean {metric}: {mean_value:.4f}, Std {metric}: {std_value:.4f}')
 
-
-# 加载处理后的特征数据和标签
 data = pd.read_csv("data.csv")
 y = data['isDefault']
 X = data.drop(['isDefault','loan_id','user_id'], axis=1)
 
-# 指定数据集的离散变量
 discrete_columns = []
 
-# 实例化随机森林分类器
 rf_classifier = RandomForestClassifier(
     n_estimators=50,
     max_depth=12,
@@ -69,5 +60,4 @@ rf_classifier = RandomForestClassifier(
 
 APLIDC_clf = TriEnhanceClassifier(base_classifier=rf_classifier, discrete_columns=discrete_columns)
 
-# 使用函数评估增强后的模型
 evaluate_model(APLIDC_clf, X, y)
